@@ -61,6 +61,8 @@ func (u *upnpDevice) ExternalIP() (string, error) {
 
 // Forward forwards the specified port, and adds its description to the
 // router's port mapping table.
+//
+// TODO: is desc necessary?
 func (u *upnpDevice) Forward(port uint16, desc string) error {
 	ip, err := u.getInternalIP()
 	if err != nil {
@@ -122,6 +124,9 @@ func (u *upnpDevice) getInternalIP() (string, error) {
 
 // Discover scans the local network for routers and returns the first
 // UPnP-enabled router it encounters.
+//
+// TODO: if more than one client is found, only return those on the same
+// subnet as the user?
 func Discover() (IGD, error) {
 	pppclients, _, _ := internetgateway1.NewWANPPPConnection1Clients()
 	if len(pppclients) > 0 {
