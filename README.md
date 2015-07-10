@@ -8,18 +8,19 @@ address. Specific quirks:
 first such router is returned. If you have multiple routers, this may cause
 some trouble. But why would you do that?
 
-- The forwarded port must be symmetric, e.g. the router's port 9980 must be
+- Forwarded ports are always symmetric, e.g. the router's port 9980 will be
 mapped to the client's port 9980. This will be unacceptable for some
-purposes, but too bad. Symmetric mappings work fine for 99% of people.
+purposes, but too bad. Symmetric mappings are the desired behavior 99% of
+the time, and they save a function argument.
 
 - TCP and UDP protocols are forwarded together.
 
 - Ports are forwarded permanently. Some other implementations lease a port
 mapping for a set duration, and then renew it periodically. This is nice,
 because it means mappings won't stick around after they've served their
-purpose. Unfortunately, some routers only support permanent mappings, so
-this is a case of supporting the lowest common denominator. To un-forwarded
-a port, you must use the Clear function (or do it manually).
+purpose. Unfortunately, some routers only support permanent mappings, so this
+package has chosen to support the lowest common denominator. To un-forwarded a
+port, you must use the Clear function (or do it manually).
 
 Once you've discovered your router, you can retrieve its address by calling
 its Location method. This address can be supplied to Load to connect to the
