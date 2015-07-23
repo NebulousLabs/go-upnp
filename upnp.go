@@ -17,7 +17,7 @@
 // mapping for a set duration, and then renew it periodically. This is nice,
 // because it means mappings won't stick around after they've served their
 // purpose. Unfortunately, some routers only support permanent mappings, so this
-// package has chosen to support the lowest common denominator. To un-forwarded a
+// package has chosen to support the lowest common denominator. To un-forward a
 // port, you must use the Clear function (or do it manually).
 //
 // Once you've discovered your router, you can retrieve its address by calling
@@ -43,8 +43,8 @@ type IGD interface {
 	Location() string
 }
 
-// upnpDevice implements the IGD interface. It is essentially a bridge between IGD
-// and the internetgateway1.WANIPConnection1 and
+// upnpDevice implements the IGD interface. It is essentially a bridge between
+// IGD and the internetgateway1.WANIPConnection1 and
 // internetgateway1.WANPPPConnection1 types.
 type upnpDevice struct {
 	client interface {
@@ -64,13 +64,14 @@ func (u *upnpDevice) ExternalIP() (string, error) {
 // router's port mapping table.
 //
 // TODO: is desc necessary?
+// TODO: take an int instead? More convenient.
 func (u *upnpDevice) Forward(port uint16, desc string) error {
 	ip, err := u.getInternalIP()
 	if err != nil {
 		return err
 	}
 
-	err = u.client.AddPortMapping("", port, "TCP", port, ip, true, desc, 0)
+	err = u.client.AddPortMapping("", port, "TCP", port, "bar", true, desc, 0)
 	if err != nil {
 		return err
 	}

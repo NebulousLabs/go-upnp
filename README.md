@@ -19,7 +19,7 @@ the time, and they save a function argument.
 mapping for a set duration, and then renew it periodically. This is nice,
 because it means mappings won't stick around after they've served their
 purpose. Unfortunately, some routers only support permanent mappings, so this
-package has chosen to support the lowest common denominator. To un-forwarded a
+package has chosen to support the lowest common denominator. To un-forward a
 port, you must use the Clear function (or do it manually).
 
 Once you've discovered your router, you can retrieve its address by calling
