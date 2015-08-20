@@ -71,7 +71,7 @@ func (u *upnpDevice) Forward(port uint16, desc string) error {
 		return err
 	}
 
-	err = u.client.AddPortMapping("", port, "TCP", port, "bar", true, desc, 0)
+	err = u.client.AddPortMapping("", port, "TCP", port, ip, true, desc, 0)
 	if err != nil {
 		return err
 	}
