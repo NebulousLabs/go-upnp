@@ -80,11 +80,13 @@ func (u *upnpDevice) Forward(port uint16, desc string) error {
 
 // Clear un-forwards a port, removing it from the router's port mapping table.
 func (u *upnpDevice) Clear(port uint16) error {
-	err := u.client.DeletePortMapping("", port, "TCP")
-	if err != nil {
-		return err
+	tcpErr := u.client.DeletePortMapping("", port, "TCP")
+	udpErr := u.client.DeletePortMapping("", port, "UDP")
+	// only return an error if both deletions failed
+	if tcpErr != nil && udpErr != nil {
+		return tcpErr
 	}
-	return u.client.DeletePortMapping("", port, "UDP")
+	return nil
 }
 
 // Location returns the URL of the router, for future lookups (see Load).
