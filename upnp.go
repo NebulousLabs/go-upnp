@@ -1,4 +1,4 @@
-// package upnp provides a simple and opinionated interface to UPnP-enabled
+// Package upnp provides a simple and opinionated interface to UPnP-enabled
 // routers, allowing users to forward ports and discover their external IP
 // address. Specific quirks:
 //
@@ -36,17 +36,9 @@ import (
 
 // An IGD provides an interface to the most commonly used functions of an
 // Internet Gateway Device: discovering the external IP, and forwarding ports.
-type IGD interface {
-	ExternalIP() (string, error)
-	Forward(port uint16, description string) error
-	Clear(port uint16) error
-	Location() string
-}
-
-// upnpDevice implements the IGD interface. It is essentially a bridge between
-// IGD and the internetgateway1.WANIPConnection1 and
-// internetgateway1.WANPPPConnection1 types.
-type upnpDevice struct {
+type IGD struct {
+	// This interface is satisfied by the internetgateway1.WANIPConnection1
+	// and internetgateway1.WANPPPConnection1 types.
 	client interface {
 		GetExternalIPAddress() (string, error)
 		AddPortMapping(string, uint16, string, uint16, string, bool, string, uint32) error
@@ -56,32 +48,29 @@ type upnpDevice struct {
 }
 
 // ExternalIP returns the router's external IP.
-func (u *upnpDevice) ExternalIP() (string, error) {
-	return u.client.GetExternalIPAddress()
+func (d *IGD) ExternalIP() (string, error) {
+	return d.client.GetExternalIPAddress()
 }
 
 // Forward forwards the specified port, and adds its description to the
 // router's port mapping table.
-//
-// TODO: is desc necessary?
-// TODO: take an int instead? More convenient.
-func (u *upnpDevice) Forward(port uint16, desc string) error {
-	ip, err := u.getInternalIP()
+func (d *IGD) Forward(port uint16, desc string) error {
+	ip, err := d.getInternalIP()
 	if err != nil {
 		return err
 	}
 
-	err = u.client.AddPortMapping("", port, "TCP", port, ip, true, desc, 0)
+	err = d.client.AddPortMapping("", port, "TCP", port, ip, true, desc, 0)
 	if err != nil {
 		return err
 	}
-	return u.client.AddPortMapping("", port, "UDP", port, ip, true, desc, 0)
+	return d.client.AddPortMapping("", port, "UDP", port, ip, true, desc, 0)
 }
 
 // Clear un-forwards a port, removing it from the router's port mapping table.
-func (u *upnpDevice) Clear(port uint16) error {
-	tcpErr := u.client.DeletePortMapping("", port, "TCP")
-	udpErr := u.client.DeletePortMapping("", port, "UDP")
+func (d *IGD) Clear(port uint16) error {
+	tcpErr := d.client.DeletePortMapping("", port, "TCP")
+	udpErr := d.client.DeletePortMapping("", port, "UDP")
 	// only return an error if both deletions failed
 	if tcpErr != nil && udpErr != nil {
 		return tcpErr
@@ -90,13 +79,13 @@ func (u *upnpDevice) Clear(port uint16) error {
 }
 
 // Location returns the URL of the router, for future lookups (see Load).
-func (u *upnpDevice) Location() string {
-	return u.client.GetServiceClient().Location.String()
+func (d *IGD) Location() string {
+	return d.client.GetServiceClient().Location.String()
 }
 
 // getInternalIP returns the user's local IP.
-func (u *upnpDevice) getInternalIP() (string, error) {
-	host, _, _ := net.SplitHostPort(u.client.GetServiceClient().RootDevice.URLBase.Host)
+func (d *IGD) getInternalIP() (string, error) {
+	host, _, _ := net.SplitHostPort(d.client.GetServiceClient().RootDevice.URLBase.Host)
 	devIP := net.ParseIP(host)
 	if devIP == nil {
 		return "", errors.New("could not determine router's internal IP")
@@ -114,11 +103,8 @@ func (u *upnpDevice) getInternalIP() (string, error) {
 		}
 
 		for _, addr := range addrs {
-			switch x := addr.(type) {
-			case *net.IPNet:
-				if x.Contains(devIP) {
-					return x.IP.String(), nil
-				}
+			if x, ok := addr.(*net.IPNet); ok && x.Contains(devIP) {
+				return x.IP.String(), nil
 			}
 		}
 	}
@@ -131,14 +117,14 @@ func (u *upnpDevice) getInternalIP() (string, error) {
 //
 // TODO: if more than one client is found, only return those on the same
 // subnet as the user?
-func Discover() (IGD, error) {
+func Discover() (*IGD, error) {
 	pppclients, _, _ := internetgateway1.NewWANPPPConnection1Clients()
 	if len(pppclients) > 0 {
-		return &upnpDevice{pppclients[0]}, nil
+		return &IGD{pppclients[0]}, nil
 	}
 	ipclients, _, _ := internetgateway1.NewWANIPConnection1Clients()
 	if len(ipclients) > 0 {
-		return &upnpDevice{ipclients[0]}, nil
+		return &IGD{ipclients[0]}, nil
 	}
 	return nil, errors.New("no UPnP-enabled gateway found")
 }
@@ -146,18 +132,18 @@ func Discover() (IGD, error) {
 // Load connects to the router service specified by rawurl. This is much
 // faster than Discover. Generally, Load should only be called with values
 // returned by the IGD's Location method.
-func Load(rawurl string) (IGD, error) {
+func Load(rawurl string) (*IGD, error) {
 	loc, err := url.Parse(rawurl)
 	if err != nil {
 		return nil, err
 	}
 	pppclients, _ := internetgateway1.NewWANPPPConnection1ClientsByURL(loc)
 	if len(pppclients) > 0 {
-		return &upnpDevice{pppclients[0]}, nil
+		return &IGD{pppclients[0]}, nil
 	}
 	ipclients, _ := internetgateway1.NewWANIPConnection1ClientsByURL(loc)
 	if len(ipclients) > 0 {
-		return &upnpDevice{ipclients[0]}, nil
+		return &IGD{ipclients[0]}, nil
 	}
 	return nil, errors.New("no UPnP-enabled gateway found at URL " + rawurl)
 }
