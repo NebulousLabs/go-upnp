@@ -2,7 +2,6 @@ package ssdp
 
 import (
 	"errors"
-	"log"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -56,21 +55,17 @@ func SSDPRawSearch(httpu *httpu.HTTPUClient, searchTarget string, maxWaitSeconds
 	}
 	for _, response := range allResponses {
 		if response.StatusCode != 200 {
-			log.Printf("ssdp: got response status code %q in search response", response.Status)
 			continue
 		}
 		if st := response.Header.Get("ST"); st != searchTarget {
-			log.Printf("ssdp: got unexpected search target result %q", st)
 			continue
 		}
 		location, err := response.Location()
 		if err != nil {
-			log.Printf("ssdp: no usable location in search response (discarding): %v", err)
 			continue
 		}
 		usn := response.Header.Get("USN")
 		if usn == "" {
-			log.Printf("ssdp: empty/missing USN in search response (using location instead): %v", err)
 			usn = location.String()
 		}
 		if _, alreadySeen := seenUsns[usn]; !alreadySeen {
