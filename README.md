@@ -36,7 +36,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/NebulousLabs/upnp"
+	"github.com/NebulousLabs/go-upnp"
 )
 
 // error handling omitted for concision
