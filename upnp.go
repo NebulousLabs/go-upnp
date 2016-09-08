@@ -118,15 +118,15 @@ func (d *IGD) getInternalIP() (string, error) {
 // UPnP-enabled router it encounters.  It will try up to 3 times to find a
 // router, sleeping a random duration between each attempt.  This is to
 // mitigate a race condition with many callers attempting to discover
-// simultaniously.
+// simultaneously.
 //
 // TODO: if more than one client is found, only return those on the same
 // subnet as the user?
 func Discover() (*IGD, error) {
 	maxTries := 3
-	sleepTime, _ := crypto.RandIntn(5)
+	sleepMs, _ := crypto.RandIntn(5000)
 	for try := 0; try < maxTries; try++ {
-		time.Sleep(time.Second * time.Duration(sleepTime))
+		time.Sleep(time.Millisecond * time.Duration(sleepMs))
 		pppclients, _, _ := internetgateway1.NewWANPPPConnection1Clients()
 		if len(pppclients) > 0 {
 			return &IGD{pppclients[0]}, nil
@@ -135,7 +135,7 @@ func Discover() (*IGD, error) {
 		if len(ipclients) > 0 {
 			return &IGD{ipclients[0]}, nil
 		}
-		sleepTime *= 2
+		sleepMs *= 2
 	}
 	return nil, errors.New("no UPnP-enabled gateway found")
 }
