@@ -1,27 +1,35 @@
 package upnp
 
 import (
+	"sync"
 	"testing"
 )
 
 // TestConcurrentUPNP tests that several threads calling Discover() concurrently
 // succeed.
 func TestConcurrentUPNP(t *testing.T) {
+	if testing.Short() {
+		t.SkipNow()
+	}
 	// verify that a router exists
 	_, err := Discover()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	// now try to concurrently Discover() using 10 threads
-	for i := 0; i < 10; i++ {
+	// now try to concurrently Discover() using 20 threads
+	var wg sync.WaitGroup
+	for i := 0; i < 20; i++ {
 		go func() {
+			wg.Add(1)
+			defer wg.Done()
 			_, err := Discover()
 			if err != nil {
 				t.Fatal(err)
 			}
 		}()
 	}
+	wg.Wait()
 }
 
 func TestIGD(t *testing.T) {
