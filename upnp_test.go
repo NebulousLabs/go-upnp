@@ -4,6 +4,26 @@ import (
 	"testing"
 )
 
+// TestConcurrentUPNP tests that several threads calling Discover() concurrently
+// succeed.
+func TestConcurrentUPNP(t *testing.T) {
+	// verify that a router exists
+	_, err := Discover()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// now try to concurrently Discover() using 10 threads
+	for i := 0; i < 10; i++ {
+		go func() {
+			_, err := Discover()
+			if err != nil {
+				t.Fatal(err)
+			}
+		}()
+	}
+}
+
 func TestIGD(t *testing.T) {
 	// connect to router
 	d, err := Discover()
