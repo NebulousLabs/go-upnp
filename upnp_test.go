@@ -14,7 +14,7 @@ func TestConcurrentUPNP(t *testing.T) {
 	// verify that a router exists
 	_, err := Discover()
 	if err != nil {
-		t.Fatal(err)
+		t.Skip(err)
 	}
 
 	// now try to concurrently Discover() using 20 threads
@@ -36,7 +36,7 @@ func TestIGD(t *testing.T) {
 	// connect to router
 	d, err := Discover()
 	if err != nil {
-		t.Fatal(err)
+		t.Skip(err)
 	}
 
 	// discover external IP
