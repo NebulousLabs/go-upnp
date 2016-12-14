@@ -20,12 +20,12 @@ func TestConcurrentUPNP(t *testing.T) {
 	// now try to concurrently Discover() using 20 threads
 	var wg sync.WaitGroup
 	for i := 0; i < 20; i++ {
+		wg.Add(1)
 		go func() {
-			wg.Add(1)
 			defer wg.Done()
 			_, err := Discover()
 			if err != nil {
-				t.Fatal(err)
+				t.Error(err)
 			}
 		}()
 	}
