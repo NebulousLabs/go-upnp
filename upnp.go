@@ -31,7 +31,7 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/NebulousLabs/Sia/crypto"
+	"github.com/NebulousLabs/fastrand"
 	"github.com/huin/goupnp"
 	"github.com/huin/goupnp/dcps/internetgateway1"
 )
@@ -124,7 +124,7 @@ func (d *IGD) getInternalIP() (string, error) {
 // subnet as the user?
 func Discover() (*IGD, error) {
 	maxTries := 3
-	sleepMs, _ := crypto.RandIntn(5000)
+	sleepMs := fastrand.Intn(5000)
 	for try := 0; try < maxTries; try++ {
 		time.Sleep(time.Millisecond * time.Duration(sleepMs))
 		pppclients, _, _ := internetgateway1.NewWANPPPConnection1Clients()
