@@ -1,8 +1,10 @@
 package upnp
 
 import (
+	"context"
 	"sync"
 	"testing"
+	"time"
 )
 
 // TestConcurrentUPNP tests that several threads calling Discover() concurrently
@@ -12,7 +14,9 @@ func TestConcurrentUPNP(t *testing.T) {
 		t.SkipNow()
 	}
 	// verify that a router exists
-	_, err := Discover()
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	_, err := DiscoverCtx(ctx)
 	if err != nil {
 		t.Skip(err)
 	}
@@ -23,7 +27,9 @@ func TestConcurrentUPNP(t *testing.T) {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			_, err := Discover()
+			ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+			defer cancel()
+			_, err := DiscoverCtx(ctx)
 			if err != nil {
 				t.Error(err)
 			}
@@ -34,7 +40,9 @@ func TestConcurrentUPNP(t *testing.T) {
 
 func TestIGD(t *testing.T) {
 	// connect to router
-	d, err := Discover()
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	d, err := DiscoverCtx(ctx)
 	if err != nil {
 		t.Skip(err)
 	}

@@ -72,6 +72,17 @@ func (httpu *HTTPUClient) Do(req *http.Request, timeout time.Duration, numSends 
 		return nil, err
 	}
 
+	// Spawn cancellation goroutine
+	done := make(chan struct{})
+	defer close(done)
+	go func() {
+		select {
+		case <-done:
+		case <-req.Context().Done():
+			httpu.conn.SetDeadline(time.Unix(1, 0))
+		}
+	}()
+
 	// Send request.
 	for i := 0; i < numSends; i++ {
 		if n, err := httpu.conn.WriteTo(requestBuf.Bytes(), destAddr); err != nil {
