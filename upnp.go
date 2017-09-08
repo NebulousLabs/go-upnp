@@ -26,6 +26,7 @@
 package upnp
 
 import (
+	"context"
 	"errors"
 	"net"
 	"net/url"
@@ -114,28 +115,36 @@ func (d *IGD) getInternalIP() (string, error) {
 	return "", errors.New("could not determine internal IP")
 }
 
-// Discover scans the local network for routers and returns the first
+// Discover is deprecated; use DiscoverCtx instead.
+func Discover() (*IGD, error) {
+	return DiscoverCtx(context.Background())
+}
+
+// DiscoverCtx scans the local network for routers and returns the first
 // UPnP-enabled router it encounters.  It will try up to 3 times to find a
 // router, sleeping a random duration between each attempt.  This is to
 // mitigate a race condition with many callers attempting to discover
 // simultaneously.
-//
-// TODO: if more than one client is found, only return those on the same
-// subnet as the user?
-func Discover() (*IGD, error) {
+func DiscoverCtx(ctx context.Context) (*IGD, error) {
+	// TODO: if more than one client is found, only return those on the same
+	// subnet as the user?
 	maxTries := 3
-	sleepMs := fastrand.Intn(5000)
+	sleepTime := time.Millisecond * time.Duration(fastrand.Intn(5000))
 	for try := 0; try < maxTries; try++ {
-		time.Sleep(time.Millisecond * time.Duration(sleepMs))
-		pppclients, _, _ := internetgateway1.NewWANPPPConnection1Clients()
+		pppclients, _, _ := internetgateway1.NewWANPPPConnection1Clients(ctx)
 		if len(pppclients) > 0 {
 			return &IGD{pppclients[0]}, nil
 		}
-		ipclients, _, _ := internetgateway1.NewWANIPConnection1Clients()
+		ipclients, _, _ := internetgateway1.NewWANIPConnection1Clients(ctx)
 		if len(ipclients) > 0 {
 			return &IGD{ipclients[0]}, nil
 		}
-		sleepMs *= 2
+		select {
+		case <-ctx.Done():
+			return nil, context.Canceled
+		case <-time.After(sleepTime):
+		}
+		sleepTime *= 2
 	}
 	return nil, errors.New("no UPnP-enabled gateway found")
 }
