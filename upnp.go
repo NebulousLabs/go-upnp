@@ -63,17 +63,23 @@ func (d *IGD) Forward(port uint16, desc string) error {
 		return err
 	}
 
+	time.Sleep(time.Millisecond)
 	err = d.client.AddPortMapping("", port, "TCP", port, ip, true, desc, 0)
 	if err != nil {
 		return err
 	}
+
+	time.Sleep(time.Millisecond)
 	return d.client.AddPortMapping("", port, "UDP", port, ip, true, desc, 0)
 }
 
 // Clear un-forwards a port, removing it from the router's port mapping table.
 func (d *IGD) Clear(port uint16) error {
+	time.Sleep(time.Millisecond)
 	tcpErr := d.client.DeletePortMapping("", port, "TCP")
+	time.Sleep(time.Millisecond)
 	udpErr := d.client.DeletePortMapping("", port, "UDP")
+
 	// only return an error if both deletions failed
 	if tcpErr != nil && udpErr != nil {
 		return tcpErr
