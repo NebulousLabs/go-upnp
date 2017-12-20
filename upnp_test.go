@@ -71,6 +71,7 @@ func TestIGD(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	t.Log("Loc:", loc)
 
 	// connect to router directly
 	d, err = Load(loc)
