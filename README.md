@@ -26,7 +26,7 @@ Once you've discovered your router, you can retrieve its address by calling
 its Location method. This address can be supplied to Load to connect to the
 router directly, which is much faster than calling Discover.
 
-See the [godoc](http://godoc.org/github.com/NebulousLabs/upnp) for full documentation.
+See the [godoc](http://godoc.org/github.com/NebulousLabs/go-upnp) for full documentation.
 
 ## example ##
 
