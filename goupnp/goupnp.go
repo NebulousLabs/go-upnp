@@ -22,8 +22,8 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/NebulousLabs/go-upnp/goupnp/httpu"
-	"github.com/NebulousLabs/go-upnp/goupnp/ssdp"
+	"gitlab.com/NebulousLabs/go-upnp/goupnp/httpu"
+	"gitlab.com/NebulousLabs/go-upnp/goupnp/ssdp"
 
 	"golang.org/x/net/html/charset"
 )

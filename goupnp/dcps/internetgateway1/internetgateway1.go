@@ -12,8 +12,8 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/NebulousLabs/go-upnp/goupnp"
-	"github.com/NebulousLabs/go-upnp/goupnp/soap"
+	"gitlab.com/NebulousLabs/go-upnp/goupnp"
+	"gitlab.com/NebulousLabs/go-upnp/goupnp/soap"
 )
 
 // Hack to avoid Go complaining if time isn't used.
