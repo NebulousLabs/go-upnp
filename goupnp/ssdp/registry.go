@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/NebulousLabs/go-upnp/goupnp/httpu"
+	"gitlab.com/NebulousLabs/go-upnp/goupnp/httpu"
 )
 
 const (
