@@ -45,6 +45,7 @@ type IGD struct {
 	client interface {
 		GetExternalIPAddress() (string, error)
 		AddPortMapping(string, uint16, string, uint16, string, bool, string, uint32) error
+		GetSpecificPortMappingEntry(string, uint16, string) (uint16, string, bool, string, uint32, error)
 		DeletePortMapping(string, uint16, string) error
 		GetServiceClient() *goupnp.ServiceClient
 	}
@@ -53,6 +54,24 @@ type IGD struct {
 // ExternalIP returns the router's external IP.
 func (d *IGD) ExternalIP() (string, error) {
 	return d.client.GetExternalIPAddress()
+}
+
+// CheckForwardTCP checks whether a specific TCP port is forwarded to this host
+func (d *IGD) CheckForwardTCP(port uint16) (bool, error) {
+	return d.checkForward(port, "TCP")
+}
+
+// CheckForwardUDP checks whether a specific UDP port is forwarded to this host
+func (d *IGD) CheckForwardUDP(port uint16) (bool, error) {
+	return d.checkForward(port, "UDP")
+}
+
+// checkForward checks whether a specific TCP or UDP port is forwarded to this host
+func (d *IGD) checkForward(port uint16, proto string) (bool, error) {
+
+    // Magic happens here.. :-)
+
+	return false, nil
 }
 
 // Forward forwards the specified port, and adds its description to the
