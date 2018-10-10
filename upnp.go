@@ -69,9 +69,17 @@ func (d *IGD) CheckForwardUDP(port uint16) (bool, error) {
 // checkForward checks whether a specific TCP or UDP port is forwarded to this host
 func (d *IGD) checkForward(port uint16, proto string) (bool, error) {
 
-    // Magic happens here.. :-)
+	// Magic happens here.. :-)
 
+	// Successfully determined that port is forwarded to this host
+	return true, nil
+
+	// Successfully determined that port is *not* forwarded to this or any other host
 	return false, nil
+
+	// encountered an error
+	return false, err
+
 }
 
 // Forward forwards the specified port, and adds its description to the
