@@ -30,6 +30,7 @@ import (
 	"errors"
 	"net"
 	"net/url"
+	"regexp"
 	"time"
 
 	"github.com/NebulousLabs/fastrand"
@@ -68,18 +69,33 @@ func (d *IGD) CheckForwardUDP(port uint16) (bool, error) {
 
 // checkForward checks whether a specific TCP or UDP port is forwarded to this host
 func (d *IGD) checkForward(port uint16, proto string) (bool, error) {
+	time.Sleep(time.Millisecond)
+	_, _, enabled, _, _, errClient := d.client.GetSpecificPortMappingEntry("", port, proto)
 
-	// Magic happens here.. :-)
+	//DEBUG
+	//newPort, intClient, enabled, desc, duration, errClient := d.client.GetSpecificPortMappingEntry("", port, proto)
+	//fmt.Println("-----")
+	//fmt.Println("newPort: ", newPort)
+	//fmt.Println("intClient: ", intClient)
+	//fmt.Println("enabled: ", enabled)
+	//fmt.Println("desc: ", desc)
+	//fmt.Println("duration: ", duration)
+	//fmt.Println("err: ", errClient)
+	//fmt.Println("-----")
 
-	// Successfully determined that port is forwarded to this host
-	return true, nil
+	if errClient != nil {
+		// 714 "NoSuchEntryInArray" means that there is no such forwarding
+		matched, _ := regexp.MatchString("<errorCode>714</errorCode>", errClient.Error())
+		if matched == true {
+			return false, nil
+		}
+		return false, errClient
+	}
 
-	// Successfully determined that port is *not* forwarded to this or any other host
+	if enabled == true {
+		return true, nil
+	}
 	return false, nil
-
-	// encountered an error
-	return false, err
-
 }
 
 // Forward forwards the specified port, and adds its description to the
