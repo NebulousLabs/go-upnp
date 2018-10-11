@@ -60,10 +60,26 @@ func TestIGD(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	// check that port 9001 is now forwarded
+	forwarded, err := d.IsForwardedTCP(9001)
+	if err != nil {
+		t.Fatal(err)
+	} else if !forwarded {
+		t.Fatal("port 9001 was not reported as forwarded")
+	}
+
 	// un-forward a port
 	err = d.Clear(9001)
 	if err != nil {
 		t.Fatal(err)
+	}
+
+	// check that port 9001 is no longer forwarded
+	forwarded, err = d.IsForwardedTCP(9001)
+	if err != nil {
+		t.Fatal(err)
+	} else if forwarded {
+		t.Fatal("port 9001 should no longer be forwarded")
 	}
 
 	// record router's location
