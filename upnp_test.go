@@ -2,7 +2,6 @@ package upnp
 
 import (
 	"context"
-	"errors"
 	"sync"
 	"testing"
 	"time"
@@ -55,14 +54,6 @@ func TestIGD(t *testing.T) {
 	}
 	t.Log("Your external IP is:", ip)
 
-	// check that port 9001 is not forwarded
-	res, err := d.IsForwardedTCP(9001)
-	if err != nil {
-		t.Fatal(err)
-	} else if res == true {
-		t.Fatal(errors.New("port 9001 is already forwarded"))
-	}
-
 	// forward a port
 	err = d.Forward(9001, "upnp test")
 	if err != nil {
@@ -70,11 +61,11 @@ func TestIGD(t *testing.T) {
 	}
 
 	// check that port 9001 is now forwarded
-	res, err = d.IsForwardedTCP(9001)
+	forwarded, err := d.IsForwardedTCP(9001)
 	if err != nil {
 		t.Fatal(err)
-	} else if res == false {
-		t.Fatal(errors.New("port 9001 was not reported as forwarded"))
+	} else if !forwarded {
+		t.Fatal("port 9001 was not reported as forwarded")
 	}
 
 	// un-forward a port
@@ -84,11 +75,11 @@ func TestIGD(t *testing.T) {
 	}
 
 	// check that port 9001 is no longer forwarded
-	res, err = d.IsForwardedTCP(9001)
+	forwarded, err = d.IsForwardedTCP(9001)
 	if err != nil {
 		t.Fatal(err)
-	} else if res == true {
-		t.Fatal(errors.New("port 9001 is still forwarded"))
+	} else if forwarded {
+		t.Fatal("port 9001 should no longer be forwarded")
 	}
 
 	// record router's location

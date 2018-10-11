@@ -74,7 +74,7 @@ func (d *IGD) checkForward(port uint16, proto string) (bool, error) {
 
 	if err != nil {
 		// 714 "NoSuchEntryInArray" means that there is no such forwarding
-		if contained := strings.Contains(err.Error(), "<errorCode>714</errorCode>"); contained == true {
+		if strings.Contains(err.Error(), "<errorCode>714</errorCode>") {
 			return false, nil
 		}
 		return false, err
