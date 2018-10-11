@@ -30,7 +30,7 @@ import (
 	"errors"
 	"net"
 	"net/url"
-	"regexp"
+	"strings"
 	"time"
 
 	"github.com/NebulousLabs/fastrand"
@@ -57,13 +57,13 @@ func (d *IGD) ExternalIP() (string, error) {
 	return d.client.GetExternalIPAddress()
 }
 
-// CheckForwardTCP checks whether a specific TCP port is forwarded to this host
-func (d *IGD) CheckForwardTCP(port uint16) (bool, error) {
+// IsForwardedTCP checks whether a specific TCP port is forwarded to this host
+func (d *IGD) IsForwardedTCP(port uint16) (bool, error) {
 	return d.checkForward(port, "TCP")
 }
 
-// CheckForwardUDP checks whether a specific UDP port is forwarded to this host
-func (d *IGD) CheckForwardUDP(port uint16) (bool, error) {
+// IsForwardedUDP checks whether a specific UDP port is forwarded to this host
+func (d *IGD) IsForwardedUDP(port uint16) (bool, error) {
 	return d.checkForward(port, "UDP")
 }
 
